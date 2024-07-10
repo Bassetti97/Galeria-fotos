@@ -22,6 +22,23 @@ export class PhotoService {
     this.platform = platform;
   }
 
+  public async deletePicture(photo: UserPhoto, position: number) {
+    this.photos.splice(position, 1);
+  
+    Preferences.set({
+      key: this.PHOTO_STORAGE,
+      value: JSON.stringify(this.photos)
+    });
+  
+    const filename = photo.filepath
+                        .substr(photo.filepath.lastIndexOf('/') + 1);
+  
+    await Filesystem.deleteFile({
+      path: filename,
+      directory: Directory.Data
+    });
+  }
+
   public async loadSaved() {
   const { value } = await Preferences.get({ key: this.PHOTO_STORAGE });
   this.photos = (value ? JSON.parse(value) : []) as UserPhoto[];
